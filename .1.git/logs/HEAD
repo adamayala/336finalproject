@@ -1,0 +1,3 @@
+0000000000000000000000000000000000000000 f11e03ac956f389dc599d9d61c03ced312f86a9f EC2 Default User <ec2-user@ip-172-31-43-205.us-east-2.compute.internal> 1576098111 +0000	clone: from https://github.com/whurtle/336-Final.git
+f11e03ac956f389dc599d9d61c03ced312f86a9f 600a57a424bb504f83ccce7a81d2be86214b4c9e EC2 Default User <ec2-user@ip-172-31-43-205.us-east-2.compute.internal> 1576098525 +0000	commit: putting in sessions
+600a57a424bb504f83ccce7a81d2be86214b4c9e 6215e11a434dd32d3f9d7b522322906bc32ba836 EC2 Default User <ec2-user@ip-172-31-43-205.us-east-2.compute.internal> 1576098983 +0000	pull: Merge made by the 'recursive' strategy.

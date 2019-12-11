@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> CheckOut </title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <!--<link rel="stylesheet" href="/css/styles.css"/>-->
+        <script>
+            /* Set rates + misc */
+            var taxRate = 0.09;
+            var shippingRate = 15.00; 
+            var fadeTime = 300;
+            
+            
+        
+
+        window.onload = updateQuantity;
+        $(document).ready(function() { 
+          recalculateCart();
+            $('.product-quantity').change( function() {
+              updateQuantity(this);
+            });
+            
+            $('.product-removal button').click( function() {
+              removeItem(this);
+            });
+    });
+            /* Recalculate cart */
+            function recalculateCart()
+            {
+              var subtotal = 0;
+              /* Sum up row totals */
+              $('.product').each(function () {
+                subtotal += parseFloat($(this).children('.product-line-price').text());
+              });
+              /* Calculate totals */
+              var tax = subtotal * taxRate;
+              var shipping = (subtotal > 0 ? shippingRate : 0);
+              var total = subtotal + tax + shipping;
+              /* Update totals display */
+              $('.totals-value').fadeOut(fadeTime, function() {
+                $('#cart-subtotal').html(subtotal.toFixed(2));
+                $('#cart-tax').html(tax.toFixed(2));
+                $('#cart-shipping').html(shipping.toFixed(2));
+                $('#cart-total').html(total.toFixed(2));
+                if(total == 0){
+                  $('.checkout').fadeOut(fadeTime);
+                }else{
+                  $('.checkout').fadeIn(fadeTime);
+                }
+                $('.totals-value').fadeIn(fadeTime);
+            });
+        }
+/* Update quantity */
+function updateQuantity(quantityInput)
+{
+  /* Calculate line price */
+  var productRow = $(quantityInput).parent().parent();
+  var price = parseFloat(productRow.children('.product-price').text());
+  var quantity = $(quantityInput).val();
+  var linePrice = price * quantity;
+  /* Update line price display and recalc cart totals */
+  productRow.children('.product-line-price').each(function () {
+    $(this).fadeOut(fadeTime, function() {
+      $(this).text(linePrice.toFixed(3));
+      recalculateCart();
+      $(this).fadeIn(fadeTime);
+    });
+  });  
+}
+/* Remove item from cart */
+function removeItem(removeButton)
+{
+  /* Remove row from DOM and recalc cart total */
+  var productRow = $(removeButton).parent().parent();
+  productRow.slideUp(fadeTime, function() {
+    productRow.remove();
+    recalculateCart();
+  });
+}
+        </script>
+    </head>
+    <body>
+        <h1> Check Out </h1> <button id="returnShop">Return Shopping</button>
+        <hr>
+<% cartItems.forEach(function(author){  %>
+<div class="shopping-cart">
+  <div class="column-labels">
+    
+    <label class="product-image"></label>
+    <label class="product-details"></label>
+    <label class="product-price"></label>
+    <label class="product-quantity"></label>
+    <label class="product-removal"></label>
+    <label class="product-line-price"></label>
+  </div>
+  <div class="product">
+    <div class="product-image">
+      <img  src="<%=author.image%>" height="100px">
+    </div>
+    <div class="product-details">
+      <div class="product-title"><%=author.title%></div>
+    </div>
+    <div class="product-price"><%=author.price%></div>
+    <div class="product-quantity">
+      <input type="number" value="<%=author.count%>" min="1">
+    </div>
+    <div class="product-removal">
+      <button class="remove-product">
+        Remove
+      </button>
+    </div>
+    Item total:
+    <div class="product-line-price"><%=author.count * author.price%> </div>
+    <hr>
+</div>
+<% }) %>
+
+
+<div class="totals">
+    <div class="totals-item">
+      <label>Subtotal</label>
+      <div class="totals-value" id="cart-subtotal"></div>
+    </div>
+  </div>
+    <div class="totals-item">
+      <label>Tax (.09%)</label>
+      <div class="totals-value" id="cart-tax"></div>
+    </div>
+    <div class="totals-item">
+      <label>Shipping</label>
+      <div class="totals-value" id="cart-shipping"></div>
+    </div>
+    <div class="totals-item totals-item-total">
+      <label>Grand Total</label>
+      <div class="totals-value" id="cart-total"></div>
+    </div>
+  </div>
+        <button id="checkoutBtn">Checkout</button>
+    </body>
+    <script>
+      $("#checkoutBtn").on("click",function(){
+                let images = [];
+                let counts = [];
+                 $('.product').each(function () {
+                  images.push($(this).children('.product-image').children('img').attr('src'));
+                  counts.push($(this).children('.product-quantity').children('input').val());
+                });
+                for(let i = 0; i < images.length; i++){
+                  console.log(images[i]);
+                  console.log(counts[i]);
+                  $.ajax({
+                    method: "post",
+                    url: "/updateStock",
+                    dataType: "json",
+                    data: { "image" : images[i],
+                            "change" : parseInt(counts[i])
+                    },
+                    success: function(result,status) {
+                    }   
+                });//ajax
+                }
+                $.ajax({
+                    method: "delete",
+                    url: "/deleteCart",
+                    dataType: "json",
+                    data: { "userName" : "alex"
+                    },
+                    success: function(result,status) {
+                      
+                    }   
+                });//ajax
+                alert("Checked Out!");
+                location.href = "/search";
+        });//click
+        $("#returnShop").on("click",function(){
+          location.href = "/search";
+        });//click
+    </script>
+</html>
